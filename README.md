@@ -21,18 +21,6 @@ A farmer speaks or types a question at a kiosk. A hybrid retrieval pipeline find
 
 ---
 
-## 🖥️ System in Action
-
-<p align="center">
-  <img src="assets/kiosk-home.jpg" alt="Sahakar-Vaani farmer kiosk home screen with Hindi language selection" width="100%">
-</p>
-
-<p align="center">
-  <i>Farmer Kiosk — pick a language, then speech recognition, AI answers and voice playback all run in that language.</i>
-</p>
-
----
-
 ## 🎯 The Problem
 
 | Challenge | Impact | Our approach |
@@ -56,6 +44,99 @@ A farmer speaks or types a question at a kiosk. A hybrid retrieval pipeline find
 | 📝 | **Grievance tickets** | Unresolved issues are stored in SQLite (`db_manager.py`). |
 | 👨‍💼 | **Admin dashboard** | Officers filter, review, and update tickets, and view usage analytics (`admin_app.py`). |
 | 📊 | **PDF reports** | Export grievance and resolution summaries (`report_generator.py`). |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+| Requirement | Why it is needed |
+|---|---|
+| Python 3.10 or newer | Runtime for both apps |
+| [FFmpeg](https://ffmpeg.org/download.html) on your `PATH` | Whisper needs it to decode recorded audio |
+| A [Groq API key](https://console.groq.com/keys) | The LLM that writes the answers |
+| Internet connection | Groq API calls, and first-time model downloads |
+| Microphone and speakers | Voice input and read-aloud on the kiosk |
+
+### 1. Clone and create a virtual environment
+
+```bash
+git clone https://github.com/yashj178323-ai/Sahakar-Vaani.git
+cd Sahakar-Vaani
+
+python -m venv venv
+
+# Windows (PowerShell)
+venv\Scripts\activate
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+`requirements.txt`:
+
+```text
+streamlit
+openai-whisper
+chromadb
+rank_bm25
+sentence-transformers
+groq
+```
+
+Plus whichever text-to-speech and PDF libraries the project imports (see `kiosk_app.py` and `report_generator.py`).
+
+> The first run downloads the Whisper and embedding models, so it can take a few minutes.
+
+### 3. Set your Groq API key
+
+```bash
+# Windows (PowerShell)
+$env:GROQ_API_KEY = "your_key_here"
+
+# macOS / Linux
+export GROQ_API_KEY="your_key_here"
+```
+
+Never commit your key to the repository.
+
+### 4. Build the knowledge base (once)
+
+Put your policy documents in `data/`, then run:
+
+```bash
+python ingest.py
+```
+
+Run it again whenever the documents change.
+
+### 5. Run the two portals
+
+The kiosk and the admin dashboard are separate apps. Start each in its own terminal, with the virtual environment active.
+
+**Farmer Kiosk**
+
+```bash
+streamlit run kiosk_app.py
+```
+
+Opens at `http://localhost:8501`
+
+**Admin Dashboard (PACS officers)**
+
+```bash
+streamlit run admin_app.py --server.port 8502
+```
+
+Opens at `http://localhost:8502`
+
+Both portals share the same SQLite database, so a grievance raised on the kiosk appears in the admin dashboard.
 
 ---
 
